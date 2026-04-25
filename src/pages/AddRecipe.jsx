@@ -18,8 +18,10 @@ export default function AddRecipe() {
   const [loading, setLoading] = useState(true);
 
   const fetchRecipes = async () => {
+    const email = localStorage.getItem('userEmail');
+    if (!email) return;
     try {
-      const response = await axios.get('https://webdgroupprojectbackend-1.onrender.com/recipes');
+      const response = await axios.get(`https://webdgroupprojectbackend-1.onrender.com/recipes/${email}`);
       setRecipes(response.data);
     } catch (error) {
       console.error("Error fetching recipes:", error);
@@ -42,10 +44,12 @@ export default function AddRecipe() {
   const handleAdd = async () => {
     if (!form.recipeName.trim()) { alert('Recipe name is required'); return; }
 
+    const email = localStorage.getItem('userEmail');
     const newRecipe = {
       ...form,
       servings: form.servings ? String(form.servings) : '',
-      date: new Date().toISOString()
+      date: new Date().toISOString(),
+      owner: email
     };
 
     try {

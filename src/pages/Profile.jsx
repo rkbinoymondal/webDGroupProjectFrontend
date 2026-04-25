@@ -36,6 +36,15 @@ export default function Profile() {
   const handleLogout = async () => {
     const confirmLogout = window.confirm("Do you want to logout?");
     if (confirmLogout) {
+      const email = localStorage.getItem('userEmail');
+      if (email) {
+        try {
+          await axios.delete(`https://webdgroupprojectbackend-1.onrender.com/favorites/${email}`);
+          await axios.delete(`https://webdgroupprojectbackend-1.onrender.com/recipes/${email}`);
+        } catch (error) {
+          console.error("Error deleting user data on logout:", error);
+        }
+      }
       localStorage.removeItem('userEmail');
       navigate('/');
     }

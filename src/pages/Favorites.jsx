@@ -54,7 +54,7 @@ export default function Favorites() {
       return;
     }
 
-    api.get('/favorites')
+    api.get(`/favorites/${email}`)
       .then((res) => {
         setFavorites(res.data);
         setLoading(false);

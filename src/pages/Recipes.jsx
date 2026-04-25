@@ -48,7 +48,7 @@ export default function Recipes() {
 
     Promise.all([
       api.get('/foods').catch((err) => { console.error('Error fetching recipes:', err); return { data: [] }; }),
-      api.get('/favorites').catch((err) => { console.error('Error fetching favorites:', err); return { data: [] }; })
+      api.get(`/favorites/${email}`).catch((err) => { console.error('Error fetching favorites:', err); return { data: [] }; })
     ]).then(([resFoods, resFavs]) => {
       if (resFoods && resFoods.data) setAllRecipes(resFoods.data);
       if (resFavs && resFavs.data) {
@@ -86,7 +86,8 @@ export default function Recipes() {
         })
         .catch((err) => console.error('Error deleting favorite:', err));
     } else {
-      api.post('/favorites', recipe)
+      const email = localStorage.getItem('userEmail');
+      api.post('/favorites', { ...recipe, owner: email })
         .then(() => {
           setFavoriteIds(prev => {
             const next = new Set(prev);
