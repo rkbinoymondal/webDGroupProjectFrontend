@@ -26,9 +26,12 @@ const faqs = [
 ];
 
 export default function Login() {
+  const [isLogin, setIsLogin] = useState(true);
   const [toast, setToast]   = useState(false);
+  const [toastMsg, setToastMsg] = useState('');
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [form, setForm] = useState({
     name: '', email: '', password: '', phone: '', age: '', state: ''
@@ -50,36 +53,49 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     try {
       const response = await axios.get('https://webdgroupprojectbackend-1.onrender.com/login');
-      const users = response.data;
+      const users = Array.isArray(response.data) ? response.data : [];
       const existingUser = users.find(u => u.email === form.email);
 
-      if (existingUser) {
-        if (existingUser.password === form.password) {
-          // Login successful
+      if (isLogin) {
+        if (existingUser) {
+          if (existingUser.password === form.password) {
+            localStorage.setItem('userEmail', form.email);
+            setToastMsg('Login Successful! Redirecting...');
+            setToast(true);
+            setTimeout(() => {
+              setToast(false);
+              navigate('/home');
+            }, 1500);
+          } else {
+            alert('Incorrect password for this email!');
+            setIsSubmitting(false);
+          }
+        } else {
+          alert('No account found with this email! Please register first.');
+          setIsSubmitting(false);
+        }
+      } else {
+        if (existingUser) {
+          alert('An account with this email already exists! Please login.');
+          setIsSubmitting(false);
+        } else {
+          await axios.post('https://webdgroupprojectbackend-1.onrender.com/login', form);
           localStorage.setItem('userEmail', form.email);
+          setToastMsg('Registration Successful! Redirecting...');
           setToast(true);
           setTimeout(() => {
             setToast(false);
             navigate('/home');
           }, 1500);
-        } else {
-          alert('Incorrect password for this email!');
         }
-      } else {
-        // Register new user
-        await axios.post('https://webdgroupprojectbackend-1.onrender.com/login', form);
-        localStorage.setItem('userEmail', form.email);
-        setToast(true);
-        setTimeout(() => {
-          setToast(false);
-          navigate('/home');
-        }, 1500);
       }
     } catch (error) {
       console.error("Error handling login/register:", error);
-      alert('An error occurred. Please try again.');
+      alert('An error occurred. Please make sure the backend is running and try again.');
+      setIsSubmitting(false);
     }
   };
 
@@ -100,7 +116,7 @@ export default function Login() {
       {/* Toast */}
       {toast && (
         <div className="alert alert-success alert-custom" role="alert">
-          <i className="fas fa-check-circle me-2"></i>Login Successful! Redirecting...
+          <i className="fas fa-check-circle me-2"></i>{toastMsg}
         </div>
       )}
 
@@ -122,19 +138,23 @@ export default function Login() {
 
       {/* Login Form */}
       <section id="login" className="container mt-5 mb-5">
-        <h2 className="section-title">Welcome Back</h2>
+        <h2 className="section-title">{isLogin ? 'Welcome Back' : 'Join Our Community'}</h2>
         <div className="registration-section mx-auto" style={{ maxWidth: '800px' }}>
-          <h3 className="text-center mb-4">User Login</h3>
+          <h3 className="text-center mb-4">{isLogin ? 'User Login' : 'User Registration'}</h3>
           <form onSubmit={handleSubmit}>
-            <div className="row">
-              <div className="col-md-6 mb-3">
-                <label className="form-label">Name</label>
-                <input
-                  type="text" className="form-control" name="name"
-                  placeholder="eg: Rohit Mehra" required
-                  value={form.name} onChange={handleChange}
-                />
+            {!isLogin && (
+              <div className="row">
+                <div className="col-md-12 mb-3">
+                  <label className="form-label">Name</label>
+                  <input
+                    type="text" className="form-control" name="name"
+                    placeholder="eg: Rohit Mehra" required={!isLogin}
+                    value={form.name} onChange={handleChange}
+                  />
+                </div>
               </div>
+            )}
+            <div className="row">
               <div className="col-md-6 mb-3">
                 <label className="form-label">Email Address</label>
                 <input
@@ -143,8 +163,6 @@ export default function Login() {
                   value={form.email} onChange={handleChange}
                 />
               </div>
-            </div>
-            <div className="row">
               <div className="col-md-6 mb-3">
                 <label className="form-label">Password</label>
                 <input
@@ -152,36 +170,55 @@ export default function Login() {
                   value={form.password} onChange={handleChange}
                 />
               </div>
-              <div className="col-md-6 mb-3">
-                <label className="form-label">Phone Number</label>
-                <input
-                  type="tel" className="form-control" name="phone"
-                  placeholder="eg: 9876543210" required
-                  value={form.phone} onChange={handleChange}
-                />
-              </div>
             </div>
-            <div className="row mb-2">
-              <div className="col-md-6 mb-3">
-                <label className="form-label">Age</label>
-                <input
-                  type="number" className="form-control" name="age"
-                  placeholder="eg: 25" required
-                  value={form.age} onChange={handleChange}
-                />
-              </div>
-              <div className="col-md-6 mb-3">
-                <label className="form-label">State</label>
-                <input
-                  type="text" className="form-control" name="state"
-                  placeholder="eg: Maharashtra" required
-                  value={form.state} onChange={handleChange}
-                />
-              </div>
-            </div>
-            <div className="text-center mt-2">
-              <button type="submit" className="btn btn-lg btn-register w-100">
-                <i className="fas fa-sign-in-alt me-2"></i>Login
+            
+            {!isLogin && (
+              <>
+                <div className="row">
+                  <div className="col-md-12 mb-3">
+                    <label className="form-label">Phone Number</label>
+                    <input
+                      type="tel" className="form-control" name="phone"
+                      placeholder="eg: 9876543210" required={!isLogin}
+                      value={form.phone} onChange={handleChange}
+                    />
+                  </div>
+                </div>
+                <div className="row mb-2">
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">Age</label>
+                    <input
+                      type="number" className="form-control" name="age"
+                      placeholder="eg: 25" required={!isLogin}
+                      value={form.age} onChange={handleChange}
+                    />
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">State</label>
+                    <input
+                      type="text" className="form-control" name="state"
+                      placeholder="eg: Maharashtra" required={!isLogin}
+                      value={form.state} onChange={handleChange}
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            <div className="text-center mt-4">
+              <button type="submit" className="btn btn-lg btn-register w-100 mb-3" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <><span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Processing...</>
+                ) : (
+                  <><i className={`fas ${isLogin ? 'fa-sign-in-alt' : 'fa-user-plus'} me-2`}></i>{isLogin ? 'Login' : 'Register'}</>
+                )}
+              </button>
+              <button 
+                type="button" 
+                className="btn btn-link text-decoration-none text-danger fw-bold" 
+                onClick={() => setIsLogin(!isLogin)}
+              >
+                {isLogin ? "Don't have an account? Register here" : "Already have an account? Login here"}
               </button>
             </div>
           </form>
