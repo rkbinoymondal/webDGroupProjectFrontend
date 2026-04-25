@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import Loader from '../components/Loader';
 
 const whyJoin = [
   { icon: 'fa-user-friends', title: 'Community Access', desc: 'Join thousands of food lovers and home chefs.' },
@@ -27,6 +28,7 @@ const faqs = [
 export default function Login() {
   const [toast, setToast]   = useState(false);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
   const [form, setForm] = useState({
     name: '', email: '', password: '', phone: '', age: '', state: ''
@@ -40,9 +42,12 @@ export default function Login() {
         const response = await axios.get('https://webdgroupprojectbackend-1.onrender.com/login');
         if (response.data && response.data.length > 0) {
           navigate('/home');
+        } else {
+          setLoading(false);
         }
       } catch (error) {
         console.error("Error checking login status:", error);
+        setLoading(false);
       }
     };
     checkLoginStatus();
@@ -61,6 +66,16 @@ export default function Login() {
       console.error("Error saving login data:", error);
     }
   };
+
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <Loader message="Checking authentication..." />
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>

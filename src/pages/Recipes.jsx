@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import RecipeCard from '../components/RecipeCard';
 import RecipeModal from '../components/RecipeModal';
+import Loader from '../components/Loader';
 const popularCategories = [
   { img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSdm2WEvdeCYKsdfcxy1drlrx57eF65mxHNYA&s', title: 'Rajasthani' },
   { img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRqcHPqeel_jGEooO4XZoeBswuxs6-U_khGWA&s', title: 'North Indian' },
@@ -16,6 +17,7 @@ export default function Recipes() {
   const [favoriteIds, setFavoriteIds] = useState(new Set());
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [isLoadingRecipe, setIsLoadingRecipe] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const handleCardClick = (recipe) => {
     setIsLoadingRecipe(true);
@@ -36,16 +38,17 @@ export default function Recipes() {
   };
 
   useEffect(() => {
-    api.get('/foods')
-      .then((res) => setAllRecipes(res.data))
-      .catch((err) => console.error('Error fetching recipes:', err));
-
-    api.get('/favorites')
-      .then((res) => {
-        const ids = new Set(res.data.map(f => f.foodId));
+    Promise.all([
+      api.get('/foods').catch((err) => { console.error('Error fetching recipes:', err); return { data: [] }; }),
+      api.get('/favorites').catch((err) => { console.error('Error fetching favorites:', err); return { data: [] }; })
+    ]).then(([resFoods, resFavs]) => {
+      if (resFoods && resFoods.data) setAllRecipes(resFoods.data);
+      if (resFavs && resFavs.data) {
+        const ids = new Set(resFavs.data.map(f => f.foodId));
         setFavoriteIds(ids);
-      })
-      .catch((err) => console.error('Error fetching favorites:', err));
+      }
+      setLoading(false);
+    });
   }, []);
 
   const [search, setSearch]         = useState('');
@@ -215,7 +218,9 @@ export default function Recipes() {
       {/* Featured Recipes */}
       <section className="container mt-4">
         <h2 className="section-title">Featured Recipes</h2>
-        {filtered.length === 0 ? (
+        {loading ? (
+          <Loader message="Simmering the recipes..." />
+        ) : filtered.length === 0 ? (
           <div className="text-center py-5">
             <i className="fas fa-search fa-3x mb-3 text-white"></i>
             <p className="text-white fs-5">No recipes found. Try adjusting your filters.</p>

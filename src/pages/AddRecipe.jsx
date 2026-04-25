@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import Loader from '../components/Loader';
 
 const emptyForm = {
   recipeName: '', cuisine: '', time: '', servings: '',
@@ -12,6 +13,7 @@ export default function AddRecipe() {
   const [recipes, setRecipes] = useState([]);
   const [form, setForm]       = useState(emptyForm);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const fetchRecipes = async () => {
     try {
@@ -19,6 +21,8 @@ export default function AddRecipe() {
       setRecipes(response.data);
     } catch (error) {
       console.error("Error fetching recipes:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -164,7 +168,9 @@ export default function AddRecipe() {
             <i className="fas fa-bookmark me-2"></i>Your Saved Recipes ({recipes.length})
           </h3>
 
-          {recipes.length === 0 ? (
+          {loading ? (
+            <Loader message="Fetching your created recipes..." />
+          ) : recipes.length === 0 ? (
             <div className="text-center py-5">
               <i className="fas fa-book-open fa-4x mb-3 text-muted"></i>
               <p className="text-muted">No recipes yet. Add one above!</p>

@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import Loader from '../components/Loader';
 
 const categories = [
   {
@@ -60,6 +61,7 @@ const slides = [
 
 export default function Home() {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkLoginStatus = async () => {
@@ -67,6 +69,8 @@ export default function Home() {
         const response = await axios.get('https://webdgroupprojectbackend-1.onrender.com/login');
         if (!response.data || response.data.length === 0) {
           navigate('/');
+        } else {
+          setLoading(false);
         }
       } catch (error) {
         console.error("Error checking login status:", error);
@@ -75,6 +79,16 @@ export default function Home() {
     };
     checkLoginStatus();
   }, [navigate]);
+
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <Loader message="Preparing your home page..." />
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>

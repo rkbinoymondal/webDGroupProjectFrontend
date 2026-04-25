@@ -4,6 +4,8 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import RecipeCard from '../components/RecipeCard';
 import RecipeModal from '../components/RecipeModal';
+import Loader from '../components/Loader';
+
 
 export default function Favorites() {
   const [favorites, setFavorites] = useState([]);
@@ -70,11 +72,7 @@ export default function Favorites() {
         <h2 className="section-title">My Favorites</h2>
         
         {loading ? (
-          <div className="text-center py-5 text-white">
-            <div className="spinner-border" role="status">
-              <span className="visually-hidden">Loading...</span>
-            </div>
-          </div>
+          <Loader message="Fetching your favorites..." />
         ) : favorites.length === 0 ? (
           <div className="text-center py-5">
             <i className="fas fa-heart-broken fa-3x mb-3 text-white"></i>

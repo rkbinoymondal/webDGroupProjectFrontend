@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import Loader from '../components/Loader';
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -46,11 +47,7 @@ export default function Profile() {
     return (
       <>
         <Navbar />
-        <div className="container mt-5 text-center mb-5">
-          <div className="spinner-border" style={{ color: '#ff4f4f' }} role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-        </div>
+        <Loader message="Loading Profile..." fullScreen={false} />
         <Footer />
       </>
     );
