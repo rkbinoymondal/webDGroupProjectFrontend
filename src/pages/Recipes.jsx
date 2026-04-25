@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -13,6 +14,7 @@ const popularCategories = [
 ];
 
 export default function Recipes() {
+  const navigate = useNavigate();
   const [allRecipes, setAllRecipes] = useState([]);
   const [favoriteIds, setFavoriteIds] = useState(new Set());
   const [selectedRecipe, setSelectedRecipe] = useState(null);
@@ -38,6 +40,12 @@ export default function Recipes() {
   };
 
   useEffect(() => {
+    const email = localStorage.getItem('userEmail');
+    if (!email) {
+      navigate('/');
+      return;
+    }
+
     Promise.all([
       api.get('/foods').catch((err) => { console.error('Error fetching recipes:', err); return { data: [] }; }),
       api.get('/favorites').catch((err) => { console.error('Error fetching favorites:', err); return { data: [] }; })
@@ -49,7 +57,7 @@ export default function Recipes() {
       }
       setLoading(false);
     });
-  }, []);
+  }, [navigate]);
 
   const [search, setSearch]         = useState('');
   const [filterCuisine, setCuisine] = useState('');

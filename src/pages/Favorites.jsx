@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -8,6 +9,7 @@ import Loader from '../components/Loader';
 
 
 export default function Favorites() {
+  const navigate = useNavigate();
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [toastMsg, setToastMsg] = useState('');
@@ -46,6 +48,12 @@ export default function Favorites() {
   };
 
   useEffect(() => {
+    const email = localStorage.getItem('userEmail');
+    if (!email) {
+      navigate('/');
+      return;
+    }
+
     api.get('/favorites')
       .then((res) => {
         setFavorites(res.data);
@@ -55,7 +63,7 @@ export default function Favorites() {
         console.error('Error fetching favorites:', err);
         setLoading(false);
       });
-  }, []);
+  }, [navigate]);
 
   return (
     <>

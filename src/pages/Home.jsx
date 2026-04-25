@@ -65,16 +65,11 @@ export default function Home() {
 
   useEffect(() => {
     const checkLoginStatus = async () => {
-      try {
-        const response = await axios.get('https://webdgroupprojectbackend-1.onrender.com/login');
-        if (!response.data || response.data.length === 0) {
-          navigate('/');
-        } else {
-          setLoading(false);
-        }
-      } catch (error) {
-        console.error("Error checking login status:", error);
+      const email = localStorage.getItem('userEmail');
+      if (!email) {
         navigate('/');
+      } else {
+        setLoading(false);
       }
     };
     checkLoginStatus();

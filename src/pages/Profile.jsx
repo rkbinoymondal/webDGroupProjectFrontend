@@ -11,15 +11,22 @@ export default function Profile() {
 
   useEffect(() => {
     const fetchUserData = async () => {
+      const email = localStorage.getItem('userEmail');
+      if (!email) {
+        navigate('/');
+        return;
+      }
       try {
-        const response = await axios.get('https://webdgroupprojectbackend-1.onrender.com/login');
-        if (response.data && response.data.length > 0) {
-          setUserData(response.data[0]);
+        const response = await axios.get(`https://webdgroupprojectbackend-1.onrender.com/login/${email}`);
+        if (response.data && response.data.email) {
+          setUserData(response.data);
         } else {
+          localStorage.removeItem('userEmail');
           navigate('/');
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
+        localStorage.removeItem('userEmail');
         navigate('/');
       }
     };
@@ -29,17 +36,8 @@ export default function Profile() {
   const handleLogout = async () => {
     const confirmLogout = window.confirm("Do you want to logout?");
     if (confirmLogout) {
-      try {
-        // Delete all rows from login, favorites, and recipes tables
-        await axios.delete('https://webdgroupprojectbackend-1.onrender.com/login');
-        await axios.delete('https://webdgroupprojectbackend-1.onrender.com/favorites');
-        await axios.delete('https://webdgroupprojectbackend-1.onrender.com/recipes');
-        
-        navigate('/');
-      } catch (error) {
-        console.error("Error during logout:", error);
-        alert("Failed to logout completely. Please try again.");
-      }
+      localStorage.removeItem('userEmail');
+      navigate('/');
     }
   };
 

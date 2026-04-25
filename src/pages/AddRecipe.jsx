@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -10,6 +11,7 @@ const emptyForm = {
 };
 
 export default function AddRecipe() {
+  const navigate = useNavigate();
   const [recipes, setRecipes] = useState([]);
   const [form, setForm]       = useState(emptyForm);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -27,8 +29,13 @@ export default function AddRecipe() {
   };
 
   useEffect(() => {
+    const email = localStorage.getItem('userEmail');
+    if (!email) {
+      navigate('/');
+      return;
+    }
     fetchRecipes();
-  }, []);
+  }, [navigate]);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 

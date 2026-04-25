@@ -38,17 +38,12 @@ export default function Login() {
 
   useEffect(() => {
     const checkLoginStatus = async () => {
-      try {
-        const response = await axios.get('https://webdgroupprojectbackend-1.onrender.com/login');
-        if (response.data && response.data.length > 0) {
-          navigate('/home');
-        } else {
-          setLoading(false);
-        }
-      } catch (error) {
-        console.error("Error checking login status:", error);
-        setLoading(false);
+      const email = localStorage.getItem('userEmail');
+      if (email) {
+        navigate('/home');
+        return;
       }
+      setLoading(false);
     };
     checkLoginStatus();
   }, [navigate]);
@@ -56,14 +51,35 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('https://webdgroupprojectbackend-1.onrender.com/login', form);
-      setToast(true);
-      setTimeout(() => {
-        setToast(false);
-        navigate('/home');
-      }, 1500);
+      const response = await axios.get('https://webdgroupprojectbackend-1.onrender.com/login');
+      const users = response.data;
+      const existingUser = users.find(u => u.email === form.email);
+
+      if (existingUser) {
+        if (existingUser.password === form.password) {
+          // Login successful
+          localStorage.setItem('userEmail', form.email);
+          setToast(true);
+          setTimeout(() => {
+            setToast(false);
+            navigate('/home');
+          }, 1500);
+        } else {
+          alert('Incorrect password for this email!');
+        }
+      } else {
+        // Register new user
+        await axios.post('https://webdgroupprojectbackend-1.onrender.com/login', form);
+        localStorage.setItem('userEmail', form.email);
+        setToast(true);
+        setTimeout(() => {
+          setToast(false);
+          navigate('/home');
+        }, 1500);
+      }
     } catch (error) {
-      console.error("Error saving login data:", error);
+      console.error("Error handling login/register:", error);
+      alert('An error occurred. Please try again.');
     }
   };
 
