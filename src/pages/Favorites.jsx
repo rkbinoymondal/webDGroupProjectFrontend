@@ -39,7 +39,8 @@ export default function Favorites() {
   };
 
   const removeFavorite = (recipe) => {
-    api.delete(`/favorites/${recipe.foodId}`)
+    const email = localStorage.getItem('userEmail');
+    api.delete(`/favorites/owner/${email}/foodId/${recipe.foodId}`)
       .then(() => {
         setFavorites(prev => prev.filter((f) => f.foodId !== recipe.foodId));
         showToast(`"${recipe.foodName}" is deleted now.`);
@@ -54,7 +55,7 @@ export default function Favorites() {
       return;
     }
 
-    api.get(`/favorites/${email}`)
+    api.get(`/favorites/owner/${email}`)
       .then((res) => {
         setFavorites(res.data);
         setLoading(false);

@@ -21,7 +21,7 @@ export default function AddRecipe() {
     const email = localStorage.getItem('userEmail');
     if (!email) return;
     try {
-      const response = await axios.get(`https://webdgroupprojectbackend-1.onrender.com/recipes/${email}`);
+      const response = await axios.get(`https://webdgroupprojectbackend-1.onrender.com/recipes/owner/${email}`);
       setRecipes(response.data);
     } catch (error) {
       console.error("Error fetching recipes:", error);

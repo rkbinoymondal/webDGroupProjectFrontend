@@ -48,7 +48,7 @@ export default function Recipes() {
 
     Promise.all([
       api.get('/foods').catch((err) => { console.error('Error fetching recipes:', err); return { data: [] }; }),
-      api.get(`/favorites/${email}`).catch((err) => { console.error('Error fetching favorites:', err); return { data: [] }; })
+      api.get(`/favorites/owner/${email}`).catch((err) => { console.error('Error fetching favorites:', err); return { data: [] }; })
     ]).then(([resFoods, resFavs]) => {
       if (resFoods && resFoods.data) setAllRecipes(resFoods.data);
       if (resFavs && resFavs.data) {
@@ -74,8 +74,9 @@ export default function Recipes() {
   };
 
   const toggleFavorite = (recipe) => {
+    const email = localStorage.getItem('userEmail');
     if (favoriteIds.has(recipe.foodId)) {
-      api.delete(`/favorites/${recipe.foodId}`)
+      api.delete(`/favorites/owner/${email}/foodId/${recipe.foodId}`)
         .then(() => {
           setFavoriteIds(prev => {
             const next = new Set(prev);

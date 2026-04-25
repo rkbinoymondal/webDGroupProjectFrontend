@@ -39,8 +39,8 @@ export default function Profile() {
       const email = localStorage.getItem('userEmail');
       if (email) {
         try {
-          await axios.delete(`https://webdgroupprojectbackend-1.onrender.com/favorites/${email}`);
-          await axios.delete(`https://webdgroupprojectbackend-1.onrender.com/recipes/${email}`);
+          await axios.delete(`https://webdgroupprojectbackend-1.onrender.com/favorites/owner/${email}`);
+          await axios.delete(`https://webdgroupprojectbackend-1.onrender.com/recipes/owner/${email}`);
         } catch (error) {
           console.error("Error deleting user data on logout:", error);
         }
